@@ -51,6 +51,21 @@ test("a valid blog can be added", async () => {
   expect(authors).toContain("author 3");
 });
 
+test("can post without likes can be defaulted to 0", async () => {
+  const blogWithoutLikes = {
+    title: "title 3",
+    author: "author 3",
+    url: "www.url3.world",
+  };
+  const savedBlog = await api
+    .post("/api/blogs")
+    .send(blogWithoutLikes)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  expect(savedBlog.body.likes).toBe(0);
+});
+
 afterAll(async () => {
   await mongoose.connection.close();
 });
