@@ -85,6 +85,24 @@ describe("tests with specific blog", () => {
     const remainingBlogs = await blogsInDb();
     expect(remainingBlogs.length).toBe(blogs.length - 1);
   });
+
+  test("update the likes by 1 on a specific blog", async () => {
+    const blogs = await blogsInDb();
+    const blogToUpdate = blogs[0];
+
+    const requestedBlogUpdate = {
+      author: blogToUpdate.author,
+      title: blogToUpdate.title,
+      url: blogToUpdate.url,
+      likes: blogToUpdate.likes + 1,
+    };
+
+    const updatedBlog = await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(requestedBlogUpdate)
+      .expect(200);
+    expect(updatedBlog.body.likes).toBe(blogToUpdate.likes + 1);
+  });
 });
 
 afterAll(async () => {
