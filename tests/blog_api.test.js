@@ -30,6 +30,27 @@ test("blogs have id", async () => {
   expect(blogs.body[0].id).toBeDefined();
 });
 
+test("a valid blog can be added", async () => {
+  const newBlog = {
+    title: "title 3",
+    author: "author 3",
+    url: "www.url3.world",
+    likes: 3333,
+  };
+
+  await api
+    .post("/api/blogs")
+    .send(newBlog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  const blogs = await blogsInDb();
+  expect(blogs.length).toBe(initialBlogs.length + 1);
+
+  const authors = blogs.map((blog) => blog.author);
+  expect(authors).toContain("author 3");
+});
+
 afterAll(async () => {
   await mongoose.connection.close();
 });
