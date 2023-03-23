@@ -66,6 +66,19 @@ test("can post without likes can be defaulted to 0", async () => {
   expect(savedBlog.body.likes).toBe(0);
 });
 
+test("missing title or url returns 400", async () => {
+  const blogWithoutTitle = {
+    author: "author 3",
+    url: "www.url3.world",
+  };
+  const blogWithoutUrl = {
+    author: "author 3",
+    title: "title3",
+  };
+  await api.post("/api/blogs").send(blogWithoutTitle).expect(400);
+  await api.post("/api/blogs").send(blogWithoutUrl).expect(400);
+});
+
 afterAll(async () => {
   await mongoose.connection.close();
 });
