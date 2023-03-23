@@ -9,11 +9,7 @@ const { initialBlogs, blogsInDb } = require("./test_helper");
 
 beforeEach(async () => {
   await Blog.deleteMany({});
-  const blogMongooseObjects = initialBlogs.map((blog) => new Blog(blog));
-  const savedPromises = blogMongooseObjects.map((blogObject) =>
-    blogObject.save()
-  );
-  Promise.all(savedPromises);
+  await Blog.insertMany(initialBlogs);
 });
 
 test("blogs are returned as json in correct number", async () => {
@@ -77,6 +73,18 @@ test("missing title or url returns 400", async () => {
   };
   await api.post("/api/blogs").send(blogWithoutTitle).expect(400);
   await api.post("/api/blogs").send(blogWithoutUrl).expect(400);
+});
+
+describe("tests with specific blog", () => {
+  test("delete a specific blog", async () => {
+    const blogs = await blogsInDb();
+    const blogToDelete = blogs[0];
+
+    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+
+    const remainingBlogs = await blogsInDb();
+    expect(remainingBlogs.length).toBe(blogs.length - 1);
+  });
 });
 
 afterAll(async () => {
