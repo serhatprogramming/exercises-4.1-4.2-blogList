@@ -25,6 +25,11 @@ test("blogs are returned as json in correct number", async () => {
   expect(blogs.body.length).toBe(initialBlogs.length);
 });
 
+test("blogs have id", async () => {
+  const blogs = await api.get("/api/blogs");
+  expect(blogs.body[0].id).toBeDefined();
+});
+
 afterAll(async () => {
   await mongoose.connection.close();
 });
