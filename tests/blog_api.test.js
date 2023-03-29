@@ -5,11 +5,19 @@ const app = require("../app");
 const api = supertest(app);
 
 const Blog = require("../models/blog");
-const { initialBlogs, blogsInDb } = require("./test_helper");
+const User = require("../models/user");
+const {
+  initialBlogs,
+  blogsInDb,
+  initialUsers,
+  usersInDb,
+} = require("./test_helper");
 
 beforeEach(async () => {
   await Blog.deleteMany({});
   await Blog.insertMany(initialBlogs);
+  await User.deleteMany({});
+  await User.insertMany(initialUsers);
 });
 
 test("blogs are returned as json in correct number", async () => {
@@ -76,7 +84,39 @@ test("missing title or url returns 400", async () => {
 });
 
 describe("tests with users", () => {
-  test("");
+  test("Creating a valid user", async () => {
+    const usersAtBeginning = await usersInDb();
+    expect(usersAtBeginning.length).toBe(2);
+    const newUser = {
+      username: "test3",
+      name: "Test User3",
+      password: "testing",
+    };
+    await api.post("/api/users").send(newUser).expect(201);
+    const usersAtEnd = await usersInDb();
+    expect(usersAtBeginning.length).toBe(usersAtEnd.length - 1);
+  });
+
+  test("Invalid User creation is not allowed", async () => {
+    let newUser = {
+      username: "test",
+      name: "Test User3",
+      password: "12",
+    };
+
+    const result = await api.post("/api/users").send(newUser).expect(400);
+    expect(result.body.error).toContain("User validation failed");
+    newUser = { name: "Test User3", password: "12" };
+    await api.post("/api/users").send(newUser).expect(400);
+    newUser = { username: "test", name: "Test User3" };
+    await api.post("/api/users").send(newUser).expect(400);
+    newUser = {
+      username: "23",
+      name: "Test User3",
+      password: "12",
+    };
+    await api.post("/api/users").send(newUser).expect(400);
+  });
 });
 
 describe("tests with specific blog", () => {
