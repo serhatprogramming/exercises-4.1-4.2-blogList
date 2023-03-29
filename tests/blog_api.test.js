@@ -75,6 +75,10 @@ test("missing title or url returns 400", async () => {
   await api.post("/api/blogs").send(blogWithoutUrl).expect(400);
 });
 
+describe("tests with users", () => {
+  test("");
+});
+
 describe("tests with specific blog", () => {
   test("delete a specific blog", async () => {
     const blogs = await blogsInDb();
