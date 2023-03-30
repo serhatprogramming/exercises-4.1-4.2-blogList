@@ -10,18 +10,22 @@ blogsRouter.get("/", async (request, response) => {
 blogsRouter.post("/", async (request, response, next) => {
   const body = request.body;
 
-  const user = await User.find({ username: body.user.username });
+  const user = await User.findOne({ username: body.user.username });
 
   const blog = new Blog({
     title: body.title,
     author: body.author,
     url: body.url,
     likes: body.likes || 0,
-    user: user[0]._id || null,
+    user: user.id || null,
   });
 
   try {
     const result = await blog.save();
+    console.log(user);
+    user.blogs = user.blogs.concat(result._id);
+    console.log(user.blogs);
+    await user.save();
     response.status(201).json(result);
   } catch (error) {
     next(error);
